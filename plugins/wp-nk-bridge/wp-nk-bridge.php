@@ -148,7 +148,7 @@ if (!function_exists('write_log')) {
 // -------------
 
 require_once('include/CyGameServerConnection.php');
-require_once('include/CyMessageEnvelope.php');
+require_once('include/CyNotification.php');
 
 /**
  * Test connection to the game server and pass the result in the ugliest manner possible to the settings page
@@ -161,15 +161,18 @@ function wp_cy_test() {
 	exit;
 }
 
-add_action( 'bp_notification_after_save', 'cy_send_notification' );
-
+/** 
+ * Forward notifications to game server 
+ * 
+ * __TODO__ get message content and user data from database
+ * Currently only the notification and user ids are send
+ * this should be doable with BP_Notifications_Notification::get()
+ */
 function cy_send_notification(BP_Notifications_Notification $notification) {
-	//$_notification = BP_Notifications_Notification::get($notification->id);
-	$user = get_user_by( "id", $notification->user_id);
-	$nkConnection = new CyGameServerConnection( );
-	$cyNotification = new CyNotification($notification->id, null, true, $user->ID, $notification->date_notified);
-	$result = $nkConnection->send_network_notification($cyNotification);
-
+	$cyNotification = new CyNotification($notification->id, null, true, $notification->user_id, $notification->date_notified);
+	$result = $cyNotification->sendToNk();
 }
+// hook after saving to not increase lantency while writing notifications 
+add_action( 'bp_notification_after_save', 'cy_send_notification' );
 
 ?>
