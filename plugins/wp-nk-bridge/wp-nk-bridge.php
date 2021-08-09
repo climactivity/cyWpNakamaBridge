@@ -102,11 +102,33 @@ function cy_options_page(  ) {
 			settings_fields( 'pluginPage' );
 			do_settings_sections( 'pluginPage' );
 			submit_button();
+			//
 			?>
 
 		</form>
+		<?php cy_test_connection_render() ?>
 		<?php
 
+}
+
+add_action( 'admin_post_wp_cy_test', 'wp_cy_test' );
+
+
+
+
+function cy_test_connection_render() {
+	$options = get_option( 'cy_settings' );
+	$works = "Not tested"; 
+	$works = $_GET['connection_test']; //get_query_var( 'connection_test', 'Not tested' );
+	$redirect = urlencode( remove_query_arg( 'connection_test', $_SERVER['REQUEST_URI'] ) );
+	$redirect = urlencode( $_SERVER['REQUEST_URI'] )
+	?> 
+	<form action="<?php echo admin_url( 'admin-post.php' ); ?>" method='post'>
+		<input type="hidden" name="action" value="wp_cy_test">
+		Connection to game server works? <span>  <?php echo $works ?> </span>
+		<input type="hidden" name="_wp_http_referer" value="<?php echo $redirect; ?>">
+		<?php submit_button( 'Test Connection' ); ?>
+	</form>	<?php
 }
 
 // -------------
@@ -115,6 +137,15 @@ function cy_options_page(  ) {
 
 if ( !class_exists( 'CyGameServerConnection' ) ) {
 	require_once('include/CyGameServerConnection.php');
+}
+
+function wp_cy_test() {
+	$options = get_option( 'cy_settings' );
+	$nkConnection = new CyGameServerConnection( );
+	$result = $nkConnection->test_connection();
+	$url = add_query_arg( 'connection_test',  $result, urldecode( $_POST['_wp_http_referer'] ) );
+	wp_safe_redirect( $url );
+	exit;
 }
 
 ?>
