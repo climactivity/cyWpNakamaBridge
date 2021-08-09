@@ -1,4 +1,3 @@
-plugins/buddyboss-platform
-plugins/buddyboss-platform-pro
-plugins/oauth2-provider
+plugins/*
+!plugins/wp-nk-bridge
 themes/buddyboss-theme
