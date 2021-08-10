@@ -1,3 +1,4 @@
 plugins/*
 !plugins/wp-nk-bridge
 themes/buddyboss-theme
+.idea/
