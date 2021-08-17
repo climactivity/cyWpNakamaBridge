@@ -18,11 +18,13 @@ class CyNotification extends CyMessageEnvelope {
      */
     function __construct($text, $linkTo = null, $persistent = true, $contextUser, $sendAt = null) {
         $contextUser = get_user_by("id", $contextUser);
+        $notificationDataTemp = BP_Notifications_Notification::get(array('id' => $text))[0];
+        $content = $this->formatNotification( $notificationDataTemp );
 
         parent::__construct( "Notification", $contextUser, $sendAt );
 
         $this->persistent = $persistent;
-        $this->text = BP_Notifications_Notification::get(array('id' => $text));
+        $this->text = $content;
         $this->linkTo = $linkTo;
 
     }
@@ -42,6 +44,27 @@ class CyNotification extends CyMessageEnvelope {
     function toJson() {
         return wp_json_encode($this);
     }
-}
+    
+    // see https://www.buddyboss.com/resources/reference/functions/bp_notifications_get_notifications_for_user/
+    private function formatNotification($notification) {
+        $bp = buddypress();
+        $component_name = $notification->component_name;
+        if ( 'xprofile' == $notification->component_name ) {
+            $component_name = 'profile';
+        }
 
+        $content = call_user_func(
+            $bp->{$component_name}->notification_callback,
+            $notification->component_action, 
+            $notification->item_id, 
+            $notification->secondary_item_id, 
+            $notification->total_count, 
+            'string', 
+            $notification->id
+        );
+        return $content;
+
+    }
+
+}
 ?>
