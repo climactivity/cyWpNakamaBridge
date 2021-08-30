@@ -17,7 +17,6 @@ class CyNotification extends CyMessageEnvelope {
      *                   in next release persistent messages may be send as push notifications
      */
     function __construct($text, $linkTo = null, $persistent = true, $contextUser, $sendAt = null) {
-        $contextUser = get_user_by("id", $contextUser);
         $notificationDataTemp = BP_Notifications_Notification::get(array('id' => $text))[0];
         $content = $this->formatNotification( $notificationDataTemp );
 

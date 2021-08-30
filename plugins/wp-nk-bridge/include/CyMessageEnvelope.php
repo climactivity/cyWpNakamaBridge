@@ -19,6 +19,8 @@ abstract class CyMessageEnvelope implements JsonSerializable{
         if ($sendAt == null) {
             $this->sendAt = date_create('now')->format('Y-m-d H:i:s');
         }
+        //$contextUser = get_user_by("id", $contextUser);
+        $contextUser = xprofile_get_field_data( "AppId", $contextUser); 
         $this->messageType = $messageType; 
         $this->contextUser = $contextUser;
         $this->sendAt = $sendAt;
